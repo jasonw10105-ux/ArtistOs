@@ -7,7 +7,6 @@ import Inquiries from "./Inquiries";
 import Orders from "./Orders";
 import Profile from "./Profile";
 import { useNavigate } from "react-router-dom";
-const navigate = useNavigate();
 
 function handleLogout() {
   supabase.auth.signOut().then(({ error }) => {
