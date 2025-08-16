@@ -1,31 +1,112 @@
-import { useState } from 'react'
-import { supabase } from '../utils/supabaseClient'
+import React, { useState } from 'react'
+import supabase from '../lib/supabaseClient'
 
-export default function UploadWork({ fetchWorks }) {
+export default function UploadWork() {
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [price, setPrice] = useState('')
-  const [imageFile, setImageFile] = useState(null)
+  const [currency, setCurrency] = useState('USD')
+  const [editions, setEditions] = useState(1)
+  const [file, setFile] = useState(null)
+  const [message, setMessage] = useState('')
 
-  const handleUpload = async () => {
-    if(!imageFile) return alert('Select an image!')
-    const { data, error } = await supabase.storage.from('works').upload(`images/${imageFile.name}`, imageFile)
-    if(error) return alert(error.message)
-    const imageUrl = data.path
-    const { error: insertError } = await supabase.from('works').insert({
-      title, description, price, image_url: imageUrl
-    })
-    if(insertError) alert(insertError.message)
-    else fetchWorks()
+  const handleUpload = async (e) => {
+    e.preventDefault()
+    if (!file) {
+      setMessage('Please select an image')
+      return
+    }
+
+    try {
+      // Upload to storage
+      const fileName = `${Date.now()}-${file.name}`
+      const { error: storageError } = await supabase.storage
+        .from('works')
+        .upload(fileName, file)
+
+      if (storageError) throw storageError
+
+      // Insert record
+      const { error: dbError } = await supabase.from('works').insert({
+        title,
+        description,
+        price,
+        currency,
+        editions,
+        image_url: fileName
+      })
+
+      if (dbError) throw dbError
+
+      setMessage('Work uploaded successfully!')
+      setTitle('')
+      setDescription('')
+      setPrice('')
+      setCurrency('USD')
+      setEditions(1)
+      setFile(null)
+    } catch (err) {
+      console.error(err)
+      setMessage(`Error: ${err.message}`)
+    }
   }
 
   return (
-    <div className="upload-work">
-      <input placeholder="Title" value={title} onChange={e=>setTitle(e.target.value)}/>
-      <input placeholder="Description" value={description} onChange={e=>setDescription(e.target.value)}/>
-      <input placeholder="Price" value={price} onChange={e=>setPrice(e.target.value)}/>
-      <input type="file" onChange={e=>setImageFile(e.target.files[0])}/>
-      <button onClick={handleUpload}>Upload Work</button>
+    <div className="p-4 border rounded-lg shadow">
+      <h2 className="text-lg font-bold mb-4">Upload New Work</h2>
+      {message && <p className="mb-2 text-sm text-blue-600">{message}</p>}
+      <form onSubmit={handleUpload} className="space-y-3">
+        <input
+          type="text"
+          placeholder="Title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          className="border p-2 w-full"
+          required
+        />
+        <textarea
+          placeholder="Description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          className="border p-2 w-full"
+        />
+        <input
+          type="number"
+          placeholder="Price"
+          value={price}
+          onChange={(e) => setPrice(e.target.value)}
+          className="border p-2 w-full"
+        />
+        <select
+          value={currency}
+          onChange={(e) => setCurrency(e.target.value)}
+          className="border p-2 w-full"
+        >
+          <option value="USD">USD</option>
+          <option value="EUR">EUR</option>
+          <option value="ZAR">ZAR</option>
+        </select>
+        <input
+          type="number"
+          placeholder="Editions"
+          value={editions}
+          onChange={(e) => setEditions(Number(e.target.value))}
+          className="border p-2 w-full"
+          min="1"
+        />
+        <input
+          type="file"
+          accept="image/*"
+          onChange={(e) => setFile(e.target.files[0])}
+          className="border p-2 w-full"
+        />
+        <button
+          type="submit"
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+        >
+          Upload
+        </button>
+      </form>
     </div>
   )
 }
