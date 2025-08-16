@@ -28,7 +28,7 @@ export default function UploadWork() {
       if (storageError) throw storageError
 
       // Insert work metadata into Supabase table
-      const { error: dbError } = await supabase.from('works').insert([
+        const { error: dbError } = await supabase.from('works').insert([
         {
           title,
           description,
@@ -36,8 +36,8 @@ export default function UploadWork() {
           currency,
           editions,
           image_url: fileName,
-        }
-      ])
+        },
+      ])  // <-- must end like this, not `})`
 
       if (dbError) throw dbError
 
