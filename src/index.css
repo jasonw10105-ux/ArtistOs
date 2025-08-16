@@ -1,1 +1,19 @@
-*{box-sizing:border-box}body{font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;margin:0;background:#0b0b0c;color:#f6f6f7}a{color:inherit}input,select,textarea,button{font:inherit}button{cursor:pointer} .container{max-width:1080px;margin:0 auto;padding:24px} .card{background:#141417;border:1px solid #1f1f24;border-radius:12px;padding:16px} .grid{display:grid;gap:16px} .grid-2{grid-template-columns:1fr 1fr} .muted{color:#9ca3af} .btn{padding:10px 14px;border-radius:8px;border:1px solid #2a2a30;background:#1a1a1f} .btn-primary{background:#3b82f6;border-color:#3b82f6;color:white} .field{display:flex;flex-direction:column;gap:6px} .row{display:flex;gap:12px;align-items:center;flex-wrap:wrap} .pill{padding:6px 10px;border-radius:999px;background:#1b1b20;border:1px solid #24242a} .nav{display:flex;gap:12px;overflow:auto;padding-bottom:8px;margin-bottom:16px;border-bottom:1px solid #202028}
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+}
+
+.btn {
+  padding: 10px 15px;
+  margin: 5px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-primary { background-color: #0070f3; color: white; }
+.btn-secondary { background-color: #666; color: white; }
+.btn-danger { background-color: #e00; color: white; }
+.btn-warning { background-color: orange; color: white; }
+
+input, textarea { width: 100%; padding: 8px; margin: 5px 0; }
