@@ -36,7 +36,7 @@ export default function UploadWork() {
           currency,
           editions,
           image_url: fileName,
-        },
+        }
       ])
 
       if (dbError) throw dbError
