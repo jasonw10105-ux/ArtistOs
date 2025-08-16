@@ -12,13 +12,14 @@ export default function UploadWork() {
 
   const handleUpload = async (e) => {
     e.preventDefault()
+
     if (!file) {
       setMessage('Please select an image')
       return
     }
 
     try {
-      // Upload to storage
+      // Upload file to Supabase storage
       const fileName = `${Date.now()}-${file.name}`
       const { error: storageError } = await supabase.storage
         .from('works')
@@ -26,15 +27,17 @@ export default function UploadWork() {
 
       if (storageError) throw storageError
 
-      // Insert record
-      const { error: dbError } = await supabase.from('works').insert({
-        title,
-        description,
-        price,
-        currency,
-        editions,
-        image_url: fileName
-      })
+      // Insert work metadata into Supabase table
+      const { error: dbError } = await supabase.from('works').insert([
+        {
+          title,
+          description,
+          price,
+          currency,
+          editions,
+          image_url: fileName,
+        },
+      ])
 
       if (dbError) throw dbError
 
