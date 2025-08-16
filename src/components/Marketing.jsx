@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom'
 
 export default function Marketing() {
   const navigate = useNavigate()
-
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-yellow-50 to-white px-4 text-center">
       <header className="max-w-2xl mb-12">
