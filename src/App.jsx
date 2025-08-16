@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
-import Signup from './components/Signup'
-import SetPassword from './components/SetPassword'
-import UploadWork from './components/UploadWork'
+import Signup from './components/Signup.jsx'
+import SetPassword from './components/SetPassword.jsx'
+import UploadWork from './components/UploadWork.jsx'
 
 export default function App() {
   return (
@@ -10,7 +10,7 @@ export default function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/set-password" element={<SetPassword />} />
         <Route path="/upload" element={<UploadWork />} />
-        {/* add your other routes here */}
+        {/* add other routes as needed */}
       </Routes>
     </Router>
   )
