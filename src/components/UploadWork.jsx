@@ -1,58 +1,52 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { supabase } from '../utils/supabaseClient'
 
-export default function UploadWork({ fetchWorks }) {
+export default function UploadWork() {
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [price, setPrice] = useState('')
   const [currency, setCurrency] = useState('USD')
-  const [file, setFile] = useState(null)
   const [editions, setEditions] = useState(1)
-  const [loading, setLoading] = useState(false)
+  const [file, setFile] = useState(null)
+  const [message, setMessage] = useState('')
 
-  const handleUpload = async () => {
-    if (!file) return alert('Select a file first.')
-    setLoading(true)
+  const handleUpload = async (e) => {
+    e.preventDefault()
+    if (!file) return setMessage('Please select an image')
+    try {
+      const fileName = `${Date.now()}-${file.name}`
+      const { error: storageError } = await supabase.storage.from('works').upload(fileName, file)
+      if (storageError) throw storageError
 
-    const fileName = `${Date.now()}_${file.name}`
-    const { data, error: uploadError } = await supabase.storage.from('works').upload(fileName, file)
-    if (uploadError) return alert(uploadError.message)
+      const { error: dbError } = await supabase.from('works').insert([
+        { title, description, price, currency, editions, image_url: fileName },
+      ])
+      if (dbError) throw dbError
 
-    const { data: workData, error: insertError } = await supabase.from('works').insert({
-      title,
-      description,
-      price,
-      currency,
-      editions,
-      image_url: fileName
-    })
-    if (insertError) return alert(insertError.message)
-
-    setTitle('')
-    setDescription('')
-    setPrice('')
-    setFile(null)
-    setEditions(1)
-    fetchWorks()
-    setLoading(false)
+      setMessage('Work uploaded successfully!')
+      setTitle(''); setDescription(''); setPrice(''); setCurrency('USD'); setEditions(1); setFile(null)
+    } catch (err) {
+      setMessage(`Error: ${err.message}`)
+    }
   }
 
   return (
-    <div style={{ border:'1px solid #ccc', padding:'1rem', margin:'1rem 0', borderRadius:'8px' }}>
-      <h3>Upload New Work</h3>
-      <input placeholder="Title" value={title} onChange={e => setTitle(e.target.value)} />
-      <input placeholder="Description" value={description} onChange={e => setDescription(e.target.value)} />
-      <input placeholder="Price" type="number" value={price} onChange={e => setPrice(e.target.value)} />
-      <select value={currency} onChange={e => setCurrency(e.target.value)}>
-        <option value="USD">USD</option>
-        <option value="EUR">EUR</option>
-        <option value="ZAR">ZAR</option>
-      </select>
-      <input type="number" value={editions} onChange={e => setEditions(e.target.value)} min={1} />
-      <input type="file" onChange={e => setFile(e.target.files[0])} />
-      <button onClick={handleUpload} disabled={loading}>
-        {loading ? 'Uploading...' : 'Upload Work'}
-      </button>
+    <div className="p-4 border rounded-lg shadow max-w-md mx-auto mt-8">
+      <h2 className="text-lg font-bold mb-4">Upload New Work</h2>
+      {message && <p className="mb-2 text-sm text-blue-600">{message}</p>}
+      <form onSubmit={handleUpload} className="space-y-3">
+        <input type="text" placeholder="Title" value={title} onChange={(e) => setTitle(e.target.value)} className="border p-2 w-full rounded" required />
+        <textarea placeholder="Description" value={description} onChange={(e) => setDescription(e.target.value)} className="border p-2 w-full rounded" />
+        <input type="number" placeholder="Price" value={price} onChange={(e) => setPrice(e.target.value)} className="border p-2 w-full rounded" />
+        <select value={currency} onChange={(e) => setCurrency(e.target.value)} className="border p-2 w-full rounded">
+          <option value="USD">USD</option>
+          <option value="EUR">EUR</option>
+          <option value="ZAR">ZAR</option>
+        </select>
+        <input type="number" placeholder="Editions" value={editions} onChange={(e) => setEditions(Number(e.target.value))} min="1" className="border p-2 w-full rounded" />
+        <input type="file" accept="image/*" onChange={(e) => setFile(e.target.files[0])} className="border p-2 w-full rounded" />
+        <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 w-full">Upload</button>
+      </form>
     </div>
   )
 }
