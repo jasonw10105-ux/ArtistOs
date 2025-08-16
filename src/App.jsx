@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Routes, Route, Link, useNavigate, useParams } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import { supabase } from "./supabaseClient";
 import Auth from "./auth/Auth";
 import Dashboard from "./dashboard/Dashboard";
@@ -11,7 +11,9 @@ export default function App() {
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => setSession(session));
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, s) => setSession(s));
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, s) =>
+      setSession(s)
+    );
     return () => subscription.unsubscribe();
   }, []);
 
