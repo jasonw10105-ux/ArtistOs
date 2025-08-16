@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { supabase } from '../lib/supabaseClient'
+import { supabase } from '../utils/supabaseClient'
 
 export default function SetPassword() {
   const [password, setPassword] = useState('')
