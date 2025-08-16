@@ -5,12 +5,8 @@ import { useNavigate } from "react-router-dom";
 export default function Settings() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [passwordSaving, setPasswordSaving] = useState(false);
-  const [profile, setProfile] = useState({
-    name: "",
-    bio: "",
-    avatar_url: "",
-  });
+  const [passwordUpdating, setPasswordUpdating] = useState(false);
+  const [profile, setProfile] = useState({ name: "", bio: "", avatar_url: "" });
   const [newPassword, setNewPassword] = useState("");
   const navigate = useNavigate();
 
@@ -26,13 +22,17 @@ export default function Settings() {
         return;
       }
 
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("profiles")
         .select("*")
         .eq("user_id", user.id)
         .single();
 
-      if (data) setProfile(data);
+      if (error && error.code !== "PGRST116") {
+        console.error("Error loading profile:", error.message);
+      } else if (data) {
+        setProfile(data);
+      }
       setLoading(false);
     }
 
@@ -67,9 +67,15 @@ export default function Settings() {
 
   async function handlePasswordChange(e) {
     e.preventDefault();
-    setPasswordSaving(true);
+    if (newPassword.length < 8) {
+      alert("Password must be at least 8 characters");
+      return;
+    }
 
-    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    setPasswordUpdating(true);
+    const { error } = await supabase.auth.updateUser({
+      password: newPassword,
+    });
 
     if (error) {
       alert("Error updating password: " + error.message);
@@ -77,67 +83,73 @@ export default function Settings() {
       alert("Password updated successfully!");
       setNewPassword("");
     }
-
-    setPasswordSaving(false);
+    setPasswordUpdating(false);
   }
 
   if (loading) return <div>Loading settings...</div>;
 
   return (
-    <div className="settings">
+    <div className="settings-page">
       <h1>Account Settings</h1>
-      <form onSubmit={handleSave}>
-        <label>Name</label>
-        <input
-          type="text"
-          value={profile.name || ""}
-          onChange={(e) => setProfile({ ...profile, name: e.target.value })}
-        />
 
-        <label>Bio</label>
-        <textarea
-          value={profile.bio || ""}
-          onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
-        />
+      <form onSubmit={handleSave} className="settings-form">
+        <div className="form-group">
+          <label>Display Name</label>
+          <input
+            type="text"
+            value={profile.name || ""}
+            onChange={(e) => setProfile({ ...profile, name: e.target.value })}
+          />
+        </div>
 
-        <label>Avatar URL</label>
-        <input
-          type="url"
-          value={profile.avatar_url || ""}
-          onChange={(e) =>
-            setProfile({ ...profile, avatar_url: e.target.value })
-          }
-        />
+        <div className="form-group">
+          <label>Bio</label>
+          <textarea
+            value={profile.bio || ""}
+            onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
+          />
+        </div>
 
-        {profile.avatar_url && (
-          <div>
+        <div className="form-group">
+          <label>Avatar URL</label>
+          <input
+            type="url"
+            value={profile.avatar_url || ""}
+            onChange={(e) =>
+              setProfile({ ...profile, avatar_url: e.target.value })
+            }
+          />
+          {profile.avatar_url && (
             <img
               src={profile.avatar_url}
-              alt="Avatar"
-              style={{ width: "100px", height: "100px", borderRadius: "50%" }}
+              alt="Avatar preview"
+              width={100}
+              height={100}
             />
-          </div>
-        )}
+          )}
+        </div>
 
-        <button type="submit" disabled={saving}>
-          {saving ? "Saving..." : "Save Changes"}
+        <button type="submit" className="btn btn-primary" disabled={saving}>
+          {saving ? "Saving..." : "Save Profile"}
         </button>
       </form>
 
       <hr />
 
       <h2>Change Password</h2>
-      <form onSubmit={handlePasswordChange}>
-        <label>New Password</label>
+      <form onSubmit={handlePasswordChange} className="password-form">
         <input
           type="password"
+          placeholder="New password"
           value={newPassword}
-          minLength={8}
           onChange={(e) => setNewPassword(e.target.value)}
-          required
         />
-        <button type="submit" disabled={passwordSaving}>
-          {passwordSaving ? "Updating..." : "Update Password"}
+        <button
+          type="submit"
+          className="btn btn-warning"
+          disabled={passwordUpdating}
+        >
+          {passwordUpdating ? "Updating..." : "Update Password"}
         </button>
       </form>
     </div>
