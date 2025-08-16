@@ -1,15 +1,18 @@
+import React from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
-import Marketing from './components/Marketing'
-import Signup from './components/Signup'
-import Login from './components/Login'
-import SetPassword from './components/SetPassword'
-import Dashboard from './components/Dashboard'
-import UploadWork from './components/UploadWork'
-import Catalogue from './components/Catalogue'
-import AccountSettings from './components/AccountSettings'
-import OrderTracking from './components/OrderTracking'
-import InquiryTracking from './components/InquiryTracking'
-import SalesTracking from './components/SalesTracking'
+
+// Components (exact file names and casing)
+import Marketing from './components/Marketing.jsx'
+import Signup from './components/Signup.jsx'
+import Login from './components/Login.jsx'
+import SetPassword from './components/SetPassword.jsx'
+import Dashboard from './components/Dashboard.jsx'
+import UploadWork from './components/UploadWork.jsx'
+import Catalogue from './components/Catalogue.jsx'
+import AccountSettings from './components/AccountSettings.jsx'
+import OrderTracking from './components/OrderTracking.jsx'
+import InquiryTracking from './components/InquiryTracking.jsx'
+import SalesTracking from './components/SalesTracking.jsx'
 
 export default function App() {
   return (
