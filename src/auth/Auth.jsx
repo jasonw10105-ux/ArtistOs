@@ -10,14 +10,21 @@ export default function Auth() {
 
   // Sign up
   async function signUp() {
-    if (!email || !password) return alert("Email & password required");
-    const { data, error } = await supabase.auth.signUp({ email, password });
-    if (error) return alert(error.message);
-    alert(
-      "Signup successful! Check your email for confirmation. Once confirmed, you can log in."
-    );
-    setStage("login");
-  }
+  if (!email || !password) return alert("Email & password required");
+
+  const { data, error } = await supabase.auth.signUp(
+    { email, password },
+    {
+      redirectTo: import.meta.env.VITE_SITE_URL + "/"
+    }
+  );
+
+  if (error) return alert(error.message);
+  alert(
+    "Signup successful! Check your email. After confirming, you'll be redirected to the app."
+  );
+  setStage("login");
+}
 
   // Sign in
   async function signIn() {
