@@ -1,93 +1,86 @@
 import { useState } from "react";
 import { supabase } from "../supabaseClient";
-import ProfileSetup from "./ProfileSetup";
 
 export default function Auth() {
-  const [stage, setStage] = useState("login"); // login | signup | profile
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [user, setUser] = useState(null);
+  const [message, setMessage] = useState("");
 
-  // Sign up
-  async function signUp() {
-  if (!email || !password) return alert("Email & password required");
-
-  const { data, error } = await supabase.auth.signUp(
-    { email, password },
-    {
-      redirectTo: import.meta.env.VITE_SITE_URL + "/"
-    }
-  );
-
-  if (error) return alert(error.message);
-  alert(
-    "Signup successful! Check your email. After confirming, you'll be redirected to the app."
-  );
-  setStage("login");
-}
-
-  // Sign in
-  async function signIn() {
-    if (!email || !password) return alert("Email & password required");
-    const { data, error } = await supabase.auth.signInWithPassword({
+  async function handleSignUp(e) {
+    e.preventDefault();
+    const { error } = await supabase.auth.signUp({
       email,
-      password,
+      options: { emailRedirectTo: `${window.location.origin}/set-password` },
     });
-    if (error) return alert(error.message);
-    setUser(data.user);
-    setStage("profile");
+
+    if (error) setMessage(error.message);
+    else {
+      setMessage(
+        "Check your inbox to verify your email. You’ll be able to set your password after verifying."
+      );
+      setEmail("");
+    }
   }
 
-  if (stage === "profile" && user) {
-    return <ProfileSetup onDone={() => window.location.reload()} user={user} />;
+  async function handleLogin(e) {
+    e.preventDefault();
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: { emailRedirectTo: `${window.location.origin}/dashboard` },
+    });
+
+    if (error) setMessage(error.message);
+    else {
+      setMessage("Check your email for a login link.");
+      setEmail("");
+    }
+  }
+
+  async function handleGoogle() {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: `${window.location.origin}/dashboard` },
+    });
+
+    if (error) setMessage(error.message);
   }
 
   return (
-    <div className="container">
-      <div className="card" style={{ maxWidth: 480, margin: "40px auto" }}>
-        <h2>ArtistOS</h2>
-        <p className="muted">Log in or create your account</p>
-        <div className="grid">
-          <div className="field">
-            <label>Email</label>
-            <input
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com"
-            />
-          </div>
-          <div className="field">
-            <label>Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-            />
-          </div>
-          <div className="row" style={{ gap: 8 }}>
-            {stage === "login" ? (
-              <>
-                <button className="btn btn-primary" onClick={signIn}>
-                  Log in
-                </button>
-                <button className="btn" onClick={() => setStage("signup")}>
-                  Sign up
-                </button>
-              </>
-            ) : (
-              <>
-                <button className="btn btn-primary" onClick={signUp}>
-                  Create account
-                </button>
-                <button className="btn" onClick={() => setStage("login")}>
-                  Back to login
-                </button>
-              </>
-            )}
-          </div>
-        </div>
-      </div>
+    <div className="auth-container">
+      <h2>Log In / Sign Up</h2>
+      {message && <p className="info">{message}</p>}
+
+      <form onSubmit={handleLogin}>
+        <input
+          type="email"
+          placeholder="Your email address"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+        <button type="submit" className="btn btn-primary">
+          Log In
+        </button>
+      </form>
+
+      <p>or</p>
+
+      <form onSubmit={handleSignUp}>
+        <input
+          type="email"
+          placeholder="Sign up with your email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+        <button type="submit" className="btn btn-secondary">
+          Sign Up
+        </button>
+      </form>
+
+      <p>or continue with</p>
+      <button onClick={handleGoogle} className="btn btn-google">
+        Google
+      </button>
     </div>
   );
 }
