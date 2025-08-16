@@ -1,19 +1,22 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import MarketingPage from "./marketing/MarketingPage";
-import Auth from "./auth/Auth";
-import SetPassword from "./auth/SetPassword";
-import Dashboard from "./dashboard/Dashboard";
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Marketing from "./pages/Marketing";
+import Auth from "./pages/Auth";
+import SetPassword from "./pages/SetPassword";
+import Dashboard from "./pages/Dashboard";
+import Settings from "./pages/Settings";
 
 function App() {
   return (
-    <BrowserRouter>
+    <Router>
       <Routes>
-        <Route path="/" element={<MarketingPage />} />
+        <Route path="/" element={<Marketing />} />
         <Route path="/auth" element={<Auth />} />
         <Route path="/set-password" element={<SetPassword />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/settings" element={<Settings />} />
       </Routes>
-    </BrowserRouter>
+    </Router>
   );
 }
 
