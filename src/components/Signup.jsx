@@ -11,8 +11,8 @@ export default function Signup() {
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: `${window.location.origin}/set-password`
-      }
+        emailRedirectTo: `${window.location.origin}/set-password`,
+      },
     })
 
     if (error) {
@@ -23,12 +23,13 @@ export default function Signup() {
   }
 
   const handleGoogleSignup = async () => {
-    await supabase.auth.signInWithOAuth({
+    const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/set-password`
-      }
+        redirectTo: `${window.location.origin}/set-password`,
+      },
     })
+    if (error) setMessage(error.message)
   }
 
   return (
