@@ -7,7 +7,7 @@ import Marketing from './components/Marketing.jsx'
 import Signup from './components/Signup.jsx'
 import Login from './components/Login.jsx'
 import SetPassword from './components/SetPassword.jsx'
-import DashboardLayout from './components/dashboard/DashboardLayout.jsx' // new wrapper
+import DashboardLayout from './components/DashboardLayout.jsx' // new wrapper
 import Insights from './components/dashboard/Insights.jsx'
 import Inquiries from './components/dashboard/Inquiries.jsx'
 import Messages from './components/dashboard/Messages.jsx'
