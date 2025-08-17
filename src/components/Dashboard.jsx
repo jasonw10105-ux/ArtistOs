@@ -1,20 +1,53 @@
-import React from 'react'
-import { useNavigate } from 'react-router-dom'
+// src/components/Dashboard.jsx
+import React, { useEffect, useState } from "react";
+import { supabase } from "../utils/supabaseClient";
+import { useNavigate } from "react-router-dom";
 
 export default function Dashboard() {
-  const navigate = useNavigate()
+  const [loading, setLoading] = useState(true);
+  const [session, setSession] = useState(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const getSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      const currentSession = data?.session;
+
+      if (!currentSession) {
+        // not logged in → send to login
+        navigate("/login");
+        return;
+      }
+
+      const user = currentSession.user;
+
+      // ⚡️ if user signed up by magic link only, check if they need to set password
+      const hasPassword = user.app_metadata?.provider === "email" && user.user_metadata?.password_set;
+
+      if (!hasPassword) {
+        navigate("/set-password");
+        return;
+      }
+
+      setSession(currentSession);
+      setLoading(false);
+    };
+
+    getSession();
+  }, [navigate]);
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <p className="text-gray-600">Loading...</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="p-6">
-      <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
-      <div className="grid md:grid-cols-2 gap-4">
-        <button onClick={() => navigate('/uploadwork')} className="border p-4 rounded hover:bg-gray-50">Upload Work</button>
-        <button onClick={() => navigate('/catalogue')} className="border p-4 rounded hover:bg-gray-50">Manage Catalogues</button>
-        <button onClick={() => navigate('/ordertracking')} className="border p-4 rounded hover:bg-gray-50">Track Orders</button>
-        <button onClick={() => navigate('/inquirytracking')} className="border p-4 rounded hover:bg-gray-50">Track Inquiries</button>
-        <button onClick={() => navigate('/salestracking')} className="border p-4 rounded hover:bg-gray-50">Sales Overview</button>
-        <button onClick={() => navigate('/accountsettings')} className="border p-4 rounded hover:bg-gray-50">Account Settings</button>
-      </div>
+    <div className="p-8">
+      <h1 className="text-2xl font-bold">Welcome to your Dashboard</h1>
+      <p className="mt-2 text-gray-600">You are signed in as {session?.user?.email}</p>
     </div>
-  )
+  );
 }
