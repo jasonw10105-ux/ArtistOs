@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { supabase } from "../utils/supabaseClient";
 import { useNavigate } from "react-router-dom";
+
 import Sidebar from "./Sidebar";
+import Navbar from "./Navbar"; // import Navbar
 import UploadWork from "./UploadWork";
 
 export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [session, setSession] = useState(null);
-  const [showUpload, setShowUpload] = useState(false); // toggle upload form
+  const [showUpload, setShowUpload] = useState(false);
 
   const [topInquiries, setTopInquiries] = useState([]);
   const [topMessages, setTopMessages] = useState([]);
@@ -69,7 +71,6 @@ export default function Dashboard() {
 
     fetchTopData();
 
-    // Realtime subscriptions
     const inquirySub = supabase
       .channel("inquiries")
       .on("postgres_changes", { event: "*", schema: "public", table: "inquiries" }, fetchTopData)
@@ -106,63 +107,68 @@ export default function Dashboard() {
       <Sidebar />
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto p-8">
-        <div className="flex justify-between items-center mb-6">
-          <h1 id="insights" className="text-2xl font-bold">
-            Top 5 Dashboard Insights
-          </h1>
-          <button
-            onClick={() => setShowUpload(!showUpload)}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-          >
-            {showUpload ? "Close Upload" : "Upload New Work"}
-          </button>
-        </div>
+      <div className="flex-1 flex flex-col overflow-y-auto">
+        {/* Navbar */}
+        <Navbar />
 
-        {/* UploadWork Form */}
-        {showUpload && <UploadWork />}
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
-          {/* Inquiries */}
-          <div id="inquiries" className="bg-white shadow rounded-xl p-4">
-            <h2 className="font-semibold mb-2">Inquiries</h2>
-            <ol className="list-decimal ml-4">
-              {topInquiries.length === 0 && <p>No inquiries yet.</p>}
-              {topInquiries.map((i) => (
-                <li key={i.id}>
-                  {i.name} ({i.email}): {i.message.slice(0, 30)}...
-                </li>
-              ))}
-            </ol>
+        <main className="p-8">
+          <div className="flex justify-between items-center mb-6">
+            <h1 id="insights" className="text-2xl font-bold">
+              Top 5 Dashboard Insights
+            </h1>
+            <button
+              onClick={() => setShowUpload(!showUpload)}
+              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            >
+              {showUpload ? "Close Upload" : "Upload New Work"}
+            </button>
           </div>
 
-          {/* Messages */}
-          <div id="messages" className="bg-white shadow rounded-xl p-4">
-            <h2 className="font-semibold mb-2">Messages</h2>
-            <ol className="list-decimal ml-4">
-              {topMessages.length === 0 && <p>No messages yet.</p>}
-              {topMessages.map((m) => (
-                <li key={m.id}>
-                  <strong>{m.sender_email}</strong>: {m.content.slice(0, 30)}...
-                </li>
-              ))}
-            </ol>
-          </div>
+          {/* UploadWork Form */}
+          {showUpload && <UploadWork />}
 
-          {/* Sales */}
-          <div id="sales" className="bg-white shadow rounded-xl p-4">
-            <h2 className="font-semibold mb-2">Sales</h2>
-            <ol className="list-decimal ml-4">
-              {topSales.length === 0 && <p>No sales yet.</p>}
-              {topSales.map((s) => (
-                <li key={s.id}>
-                  Work ID: {s.work_id}, {s.price} {s.currency} – {s.buyer_email}
-                </li>
-              ))}
-            </ol>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+            {/* Inquiries */}
+            <div id="inquiries" className="bg-white shadow rounded-xl p-4">
+              <h2 className="font-semibold mb-2">Inquiries</h2>
+              <ol className="list-decimal ml-4">
+                {topInquiries.length === 0 && <p>No inquiries yet.</p>}
+                {topInquiries.map((i) => (
+                  <li key={i.id}>
+                    {i.name} ({i.email}): {i.message.slice(0, 30)}...
+                  </li>
+                ))}
+              </ol>
+            </div>
+
+            {/* Messages */}
+            <div id="messages" className="bg-white shadow rounded-xl p-4">
+              <h2 className="font-semibold mb-2">Messages</h2>
+              <ol className="list-decimal ml-4">
+                {topMessages.length === 0 && <p>No messages yet.</p>}
+                {topMessages.map((m) => (
+                  <li key={m.id}>
+                    <strong>{m.sender_email}</strong>: {m.content.slice(0, 30)}...
+                  </li>
+                ))}
+              </ol>
+            </div>
+
+            {/* Sales */}
+            <div id="sales" className="bg-white shadow rounded-xl p-4">
+              <h2 className="font-semibold mb-2">Sales</h2>
+              <ol className="list-decimal ml-4">
+                {topSales.length === 0 && <p>No sales yet.</p>}
+                {topSales.map((s) => (
+                  <li key={s.id}>
+                    Work ID: {s.work_id}, {s.price} {s.currency} – {s.buyer_email}
+                  </li>
+                ))}
+              </ol>
+            </div>
           </div>
-        </div>
-      </main>
+        </main>
+      </div>
     </div>
   );
 }
