@@ -10,7 +10,6 @@ import Dashboard from './components/Dashboard.jsx'
 import UploadWork from './components/UploadWork.jsx'
 import Catalogue from './components/Catalogue.jsx'
 import AccountSettings from './components/AccountSettings.jsx'
-import OrderTracking from './components/OrderTracking.jsx'
 import InquiryTracking from './components/InquiryTracking.jsx'
 import SalesTracking from './components/SalesTracking.jsx'
 
@@ -26,7 +25,6 @@ export default function App() {
         <Route path="/uploadwork" element={<UploadWork />} />
         <Route path="/catalogue" element={<Catalogue />} />
         <Route path="/accountsettings" element={<AccountSettings />} />
-        <Route path="/ordertracking" element={<OrderTracking />} />
         <Route path="/inquirytracking" element={<InquiryTracking />} />
         <Route path="/salestracking" element={<SalesTracking />} />
       </Routes>
