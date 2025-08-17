@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { supabase } from "../utils/supabaseClient";
 import { useNavigate } from "react-router-dom";
-import Sidebar from "./Sidebar"; // import your existing Sidebar
+import Sidebar from "./Sidebar";
+import UploadWork from "./UploadWork";
 
 export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [session, setSession] = useState(null);
+  const [showUpload, setShowUpload] = useState(false); // toggle upload form
 
   const [topInquiries, setTopInquiries] = useState([]);
   const [topMessages, setTopMessages] = useState([]);
@@ -43,7 +45,6 @@ export default function Dashboard() {
   // Fetch top 5 inquiries, messages, sales
   useEffect(() => {
     const fetchTopData = async () => {
-      // Top 5 inquiries
       const { data: inquiries } = await supabase
         .from("inquiries")
         .select("*")
@@ -51,7 +52,6 @@ export default function Dashboard() {
         .limit(5);
       setTopInquiries(inquiries || []);
 
-      // Top 5 messages
       const { data: messages } = await supabase
         .from("messages")
         .select("*")
@@ -59,7 +59,6 @@ export default function Dashboard() {
         .limit(5);
       setTopMessages(messages || []);
 
-      // Top 5 sales
       const { data: sales } = await supabase
         .from("sales")
         .select("*")
@@ -108,8 +107,22 @@ export default function Dashboard() {
 
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto p-8">
-        <h1 id="insights" className="text-2xl font-bold mb-6">Top 5 Dashboard Insights</h1>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="flex justify-between items-center mb-6">
+          <h1 id="insights" className="text-2xl font-bold">
+            Top 5 Dashboard Insights
+          </h1>
+          <button
+            onClick={() => setShowUpload(!showUpload)}
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          >
+            {showUpload ? "Close Upload" : "Upload New Work"}
+          </button>
+        </div>
+
+        {/* UploadWork Form */}
+        {showUpload && <UploadWork />}
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
           {/* Inquiries */}
           <div id="inquiries" className="bg-white shadow rounded-xl p-4">
             <h2 className="font-semibold mb-2">Inquiries</h2>
