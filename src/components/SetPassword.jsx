@@ -10,20 +10,23 @@ export default function SetPassword() {
   const navigate = useNavigate();
 
   const handleSetPassword = async (e) => {
-    e.preventDefault();
-    setLoading(true);
+  e.preventDefault();
+  setLoading(true);
 
-    const { error } = await supabase.auth.updateUser({ password });
+  const { error } = await supabase.auth.updateUser({ password });
 
-    if (error) {
-      setMessage(error.message);
-    } else {
-      setMessage("Password updated! Redirecting to dashboard...");
-      setTimeout(() => navigate("/dashboard"), 2000);
-    }
+  if (error) {
+    setMessage(error.message);
+  } else {
+    // mark password as set
+    await supabase.auth.updateUser({ data: { password_set: true } });
 
-    setLoading(false);
-  };
+    setMessage("Password updated! Redirecting to dashboard...");
+    setTimeout(() => navigate("/dashboard"), 2000);
+  }
+
+  setLoading(false);
+};
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50">
