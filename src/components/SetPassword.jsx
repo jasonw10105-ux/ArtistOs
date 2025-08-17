@@ -1,47 +1,58 @@
-import React, { useState, useEffect } from 'react'
-import { supabase } from '../utils/supabaseClient'
+// src/components/SetPassword.jsx
+import React, { useState } from "react";
+import { supabase } from "../utils/supabaseClient";
+import { useNavigate } from "react-router-dom";
 
 export default function SetPassword() {
-  const [password, setPassword] = useState('')
-  const [message, setMessage] = useState('')
-  const [user, setUser] = useState(null)
-
-  useEffect(() => {
-    const getUser = async () => {
-      const { data, error } = await supabase.auth.getUser()
-      if (error) setMessage(error.message)
-      else setUser(data.user)
-    }
-    getUser()
-  }, [])
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
+  const navigate = useNavigate();
 
   const handleSetPassword = async (e) => {
-    e.preventDefault()
-    if (password.length < 8) return setMessage('Password must be at least 8 characters')
-    const { error } = await supabase.auth.updateUser({ password })
-    if (error) setMessage(error.message)
-    else setMessage('Password set successfully!')
-  }
+    e.preventDefault();
+    setLoading(true);
 
-  if (!user) return <p>Loading...</p>
+    const { error } = await supabase.auth.updateUser({ password });
+
+    if (error) {
+      setMessage(error.message);
+    } else {
+      setMessage("Password updated! Redirecting to dashboard...");
+      setTimeout(() => navigate("/dashboard"), 2000);
+    }
+
+    setLoading(false);
+  };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-4 text-center">
-      <div className="max-w-md w-full p-6 border rounded-lg shadow bg-white">
-        <h2 className="text-2xl font-bold mb-4">Set Your Password</h2>
-        {message && <p className="mb-2 text-sm text-blue-600">{message}</p>}
-        <form onSubmit={handleSetPassword} className="space-y-3">
+    <div className="flex min-h-screen items-center justify-center bg-gray-50">
+      <div className="w-full max-w-md rounded-xl bg-white p-8 shadow-lg">
+        <h2 className="mb-6 text-center text-2xl font-bold">
+          Set Your Password
+        </h2>
+        <form onSubmit={handleSetPassword} className="space-y-4">
           <input
             type="password"
-            placeholder="Choose a strong password"
+            placeholder="Enter a strong password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="border p-2 w-full rounded"
             required
+            minLength={8}
+            className="w-full rounded-md border border-gray-300 px-4 py-2 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
           />
-          <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 w-full">Save Password</button>
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full rounded-md bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700 disabled:opacity-50"
+          >
+            {loading ? "Saving..." : "Save Password"}
+          </button>
         </form>
+        {message && (
+          <p className="mt-4 text-center text-sm text-gray-600">{message}</p>
+        )}
       </div>
     </div>
-  )
+  );
 }
