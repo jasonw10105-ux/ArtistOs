@@ -1,55 +1,58 @@
-import React, { useState } from 'react'
-import { supabase } from '../utils/supabaseClient'
+// src/components/Signup.jsx
+import React, { useState } from "react";
+import { supabase } from "../utils/supabaseClient";
 
 export default function Signup() {
-  const [email, setEmail] = useState('')
-  const [message, setMessage] = useState('')
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
 
   const handleSignup = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
+    setLoading(true);
+    setMessage("");
+
     const { error } = await supabase.auth.signInWithOtp({
       email,
-      options: { emailRedirectTo: `${window.location.origin}/set-password` },
-    })
-    if (error) setMessage(error.message)
-    else setMessage('Check your email for a verification link')
-  }
+      options: {
+        emailRedirectTo: `${window.location.origin}/set-password`, // ✅ magic link redirects here
+      },
+    });
 
-  const handleGoogleSignup = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: { redirectTo: `${window.location.origin}/set-password` },
-    })
-    if (error) setMessage(error.message)
-  }
+    if (error) {
+      setMessage(error.message);
+    } else {
+      setMessage("Check your email for a verification link.");
+    }
+
+    setLoading(false);
+  };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-4 text-center">
-      <div className="max-w-md w-full p-6 border rounded-lg shadow bg-white">
-        <h2 className="text-2xl font-bold mb-4">Sign Up</h2>
-        {message && <p className="mb-2 text-sm text-blue-600">{message}</p>}
-        <form onSubmit={handleSignup} className="space-y-3">
+    <div className="flex min-h-screen items-center justify-center bg-gray-50">
+      <div className="w-full max-w-md rounded-xl bg-white p-8 shadow-lg">
+        <h2 className="mb-6 text-center text-2xl font-bold">Sign Up</h2>
+        <form onSubmit={handleSignup} className="space-y-4">
           <input
             type="email"
             placeholder="Enter your email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="border p-2 w-full rounded"
             required
+            className="w-full rounded-md border border-gray-300 px-4 py-2 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
           />
-          <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 w-full">
-            Sign up with Email
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full rounded-md bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700 disabled:opacity-50"
+          >
+            {loading ? "Sending..." : "Sign Up"}
           </button>
         </form>
-        <div className="mt-4">
-          <button
-            onClick={handleGoogleSignup}
-            className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 w-full"
-          >
-            Continue with Google
-          </button>
-        </div>
+        {message && (
+          <p className="mt-4 text-center text-sm text-gray-600">{message}</p>
+        )}
       </div>
     </div>
-  )
+  );
 }
